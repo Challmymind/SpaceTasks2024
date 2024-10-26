@@ -1,0 +1,65 @@
+#ifndef __{LIB_NAME}_HPP__
+#define __{LIB_NAME}_HPP__
+
+#ifndef SHELL_BUFFER_SIZE
+#define SHELL_BUFFER_SIZE {SHELL_BUFFER_SIZE}
+#endif
+
+#ifndef SHELL_MAX_ARGS
+#define SHELL_MAX_ARGS {SHELL_MAX_ARGS}
+#endif
+
+#ifndef SHELL_MAX_TOKEN_LEN
+#define SHELL_MAX_TOKEN_LEN {SHELL_MAX_TOKEN_LEN}
+#endif
+
+class Shell{{
+    public:
+
+        /**
+        * Execute shell's main logic.
+        *
+        * Checks for commands and executes callback if any has been found.
+        *
+        * @param ptr Pointer to string that must be parsed, can be any input ex. string from UART buffer.
+        * @param size Size of the ptr, prevents out of bounds errors.
+        * @return -1 if there wasn't any token inside ptr, 0 if no command has been executed, 1 if some command has been executed.
+        */
+        int execute(char *ptr, int size);
+
+        /**
+        * Sets internal string comparator.
+        *
+        * Comparator should return 0 if strings are equal, all others outputs will be treated as failure.
+        * It must be set explicit before executing Shell::execute to prevent undefined behaviour.
+        *
+        * @param ff Pointer to comparator function.
+        */
+        void setStringCompare(int (*ff)(const char* x, const char* y));
+
+        const char* getBuffer();
+
+        {CALLBACKS_FUNCTIONS}
+        
+    private:
+
+        /**
+        * Tokenize input.
+        *
+        * Input as one long string with white spaces isn't that helpful.
+        * This funtions splits input into smaller tokens. Max tokens count is defined by SHELL_MAX_ARGS
+        * Max token size is defined by SHELL_MAX_TOKEN_LEN
+        *
+        * @param ptr Pointer to string to be tokenized, can be any input ex. string from UART buffer.
+        * @param size Size of the ptr, prevents out of bounds errors.
+        * @return number of read tokens.
+        */
+        int tokenize(char *ptr, int size);
+        
+        int (*__string_compare)(const char* x, const char* y);
+        char tokens[{SHELL_MAX_ARGS}][{SHELL_MAX_TOKEN_LEN}];
+        char buffer[{SHELL_BUFFER_SIZE}];
+        {CALLBACKS_DECLARATIONS}
+}};
+
+#endif

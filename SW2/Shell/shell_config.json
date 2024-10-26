@@ -1,3 +1,12 @@
 {
-    "LIB_NAME":"test"
+    "LIB_NAME"              :"EXAMPLE",
+    "SHELL_BUFFER_SIZE"     : 255,
+    "SHELL_MAX_ARGS"        : 20,
+    "SHELL_MAX_TOKEN_LEN"   : 100,
+    "CALLBACKS"             : [
+        ["print", "Prints some text on the screen"], 
+        ["showtime", "Does something funny"]
+    ],
+    "_INCLUDE_PATH"          : "./Inc",
+    "_SOURCE_PATH"           : "./Src"
 }

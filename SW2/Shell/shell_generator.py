@@ -1,14 +1,18 @@
 import json
 import sys
+import os
 
 # Script variables (defaults)
 variables = {
-"LIB_NAME"              :"SHELL",
+"LIB_NAME"              :"EXAMPLE",
 "SHELL_BUFFER_SIZE"     : "99",
 "SHELL_MAX_ARGS"        :"101",
 "SHELL_MAX_TOKEN_LEN"   : "69",
-"CALLBACKS" : ["test"]
+"CALLBACKS" : ["print", "showtime"]
 }
+
+variables["INCLUDE_PATH"] = os.getcwd();
+variables["SOURCE_PATH"] = os.getcwd();
 
 def read_config(name :str):
     conf = dict()
@@ -21,110 +25,60 @@ def read_config(name :str):
 
 
 def generate_callbacks_symbol(name : str):
-    symbol : str = """void command_{name}_callback(void(*ff)(char* arg, int nargs));\n""".format(name=name)
+    symbol : str = """// Sets callback for the {name} command
+        void setCommand_{name}_Callback(void(*ff)(char* arg, int nargs));\n\t\t""".format(name=name)
     return symbol
 
 def generate_calback_variable(name : str):
-    variable : str = """void (*__command_{name}_callback)(char* arg, int nargs);\n""".format(name=name)
+    variable : str = """void (*__command_{name}_callback)(char* arg, int nargs);\n\t\t""".format(name=name)
     return variable
 
 # GENERATING HEADER FILE
 def generate_header() -> str:
     variables["CALLBACKS_FUNCTIONS"] = ""
     variables["CALLBACKS_DECLARATIONS"] = ""
-    for i in variables["CALLBACKS"]:
+    for i,_ in variables["CALLBACKS"]:
         variables["CALLBACKS_FUNCTIONS"] += generate_callbacks_symbol(i)
         variables["CALLBACKS_DECLARATIONS"] += generate_calback_variable(i)
-    header : str ="""#ifndef __{LIB_NAME}_HPP__
-#define __{LIB_NAME}_HPP__
-
-#ifndef SHELL_BUFFER_SIZE
-#define SHELL_BUFFER_SIZE {SHELL_BUFFER_SIZE}
-#endif
-
-#ifndef SHELL_MAX_ARGS
-#define SHELL_MAX_ARGS {SHELL_MAX_ARGS}
-#endif
-
-#ifndef SHELL_MAX_TOKEN_LEN
-#define SHELL_MAX_TOKEN_LEN {SHELL_MAX_TOKEN_LEN}
-#endif
-
-class Shell{{
-    public:
-        int execute(char *ptr, int size);
-        const char* getBuffer();
-        {CALLBACKS_FUNCTIONS}
-        
-    private:
-        int tokenize(char *ptr, int size);
-        int string_compare(const char* x, const char* y);
-        char tokens[{SHELL_MAX_ARGS}][{SHELL_MAX_TOKEN_LEN}];
-        char buffer[{SHELL_BUFFER_SIZE}];
-        {CALLBACKS_DECLARATIONS}
-}};
-
-#endif""".format(**variables)
+    with open("header.template", "r") as f:
+        header = f.read()
+    header = header.format(**variables)
     return header
 
-def generate_calback_execution(name : str):
-    variable : str = """if(string_compare(tokens[0],"{name}")) {{
+def generate_callback_execution(name : str):
+    variable : str = """if(__string_compare(tokens[0],"{name}")) {{
         __command_{name}_callback(tokens[0],nargs);
         return 1;
-    }}\n""".format(name=name)
+    }}\n\t""".format(name=name)
     return variable
+
+def generate_callback_setter(name :str):
+    setter : str = """// Sets callback for the {name} command
+void Shell::setCommand_{name}_Callback(void(*ff)(char* arg, int nargs)){{
+    __command_{name}_callback = ff;
+}}\n""".format(name=name)
+    return setter
 
 # GENERATING SOURCE FILE
 def generate_source() -> str:
     variables["LIB_NAME_LOWER"] = variables["LIB_NAME"].lower();
     variables["CALLBACKS_EXECUTION"] = ""
-    for i in variables["CALLBACKS"]:
-        variables["CALLBACKS_EXECUTION"] += generate_calback_execution(i)
-    source : str ="""#include "{LIB_NAME_LOWER}.hpp"
-
-const char* Shell::getBuffer(){{
-    return buffer;
-}}
-
-int Shell::tokenize(char* ptr, int size){{
-    if(size == 0) return 0;
-    int current = 0;
-    for(int x = 0; x<SHELL_MAX_ARGS; x++){{
-        int token_current = 0;
-        while ((ptr[current] > 32) && (ptr[current] < 127)) {{
-            if(token_current >= SHELL_MAX_TOKEN_LEN-1) {{
-                tokens[x][token_current] = \'0\';
-                continue;
-            }}
-            tokens[x][token_current] = ptr[current];
-            token_current++;
-            current++;
-        }}
-        if(ptr[current] == 32) {{
-            tokens[x][token_current] = \'0\';
-            continue;
-        }}
-        else return x;
-    }}
-    return SHELL_MAX_ARGS-1;
-}}
-
-int Shell::execute(char *ptr, int size){{
-    int nargs = tokenize(ptr, size);
-    if(nargs == 0) return -1;
-    {CALLBACKS_EXECUTION}
-    return 0;
- 
-}}""".format(**variables)
+    variables["CALLBACKS_SETTERS"] = ""
+    for i,_ in variables["CALLBACKS"]:
+        variables["CALLBACKS_EXECUTION"] += generate_callback_execution(i)
+        variables["CALLBACKS_SETTERS"] += generate_callback_setter(i)
+    with open("source.template", "r") as f:
+        source = f.read()
+    source = source.format(**variables)
     return source
 
 def main():
     if (len(sys.argv) > 1):
         read_config(sys.argv[1])
-    header = open(variables["LIB_NAME"].lower() + ".hpp", "w")
+    header = open(variables["INCLUDE_PATH"] + "/" + variables["LIB_NAME"].lower() + ".hpp", "w")
     header.write(generate_header())
     header.close()
-    source = open(variables["LIB_NAME"].lower() + ".cpp", "w")
+    source = open(variables["SOURCE_PATH"] + "/" + variables["LIB_NAME"].lower() + ".cpp", "w")
     source.write(generate_source())
     source.close()
 
