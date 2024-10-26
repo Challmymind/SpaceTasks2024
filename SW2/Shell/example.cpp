@@ -1,19 +1,15 @@
 #include "example.hpp"
 
-const char* Shell::getBuffer(){
-    return buffer;
-}
-
 /**
  * Tokenize input.
  *
  * Input as one long string with white spaces isn't that helpful.
- * This funtions splits input into smaller tokens. Max tokens count is defined by SHELL_MAX_ARGS
+ * This funtions splits input into smaller _tokens. Max _tokens count is defined by SHELL_MAX_ARGS
  * Max token size is defined by SHELL_MAX_TOKEN_LEN
  *
  * @param ptr Pointer to string to be tokenized, can be any input ex. string from UART buffer.
  * @param size Size of the ptr, prevents out of bounds errors.
- * @return number of read tokens.
+ * @return number of read _tokens.
  */
 int Shell::tokenize(char* ptr, int size){
     if(size == 0) return 0;
@@ -22,15 +18,15 @@ int Shell::tokenize(char* ptr, int size){
         int token_current = 0;
         while ((ptr[current] > 32) && (ptr[current] < 127)) {
             if(token_current >= SHELL_MAX_TOKEN_LEN-1) {
-                tokens[x][token_current] = '\0';
+                _tokens[x][token_current] = '\0';
                 continue;
             }
-            tokens[x][token_current] = ptr[current];
+            _tokens[x][token_current] = ptr[current];
             token_current++;
             current++;
         }
         if(ptr[current] == 32) {
-            tokens[x][token_current] = '\0';
+            _tokens[x][token_current] = '\0';
             continue;
         }
         else return x;
@@ -51,6 +47,20 @@ void Shell::setStringCompare(int (*ff)(const char *, const char *)){
 }
 
 /**
+* Sets internal write operation.
+*
+* This command is specified by end user of the library, it can do almost everything.
+* The idea is that caller can implement writing directly by peripheral or just store output to buffer.
+*
+* @param ff Pointer to the write function.
+* @param str Pointer to the string to be written.
+* @param len Length of the string.
+*/
+void Shell::setWrite(int (*ff)(const char* str, int len)){
+    __write = ff;
+}
+
+/**
  * Execute shell's main logic.
  *
  * Checks for commands and executes callback if any has been found.
@@ -62,12 +72,18 @@ void Shell::setStringCompare(int (*ff)(const char *, const char *)){
 int Shell::execute(char *ptr, int size){
     int nargs = tokenize(ptr, size);
     if(nargs == 0) return -1;
-    if(__string_compare(tokens[0],"print")) {
-        __command_print_callback(tokens[0],nargs);
+    if(__string_compare(_tokens[0],"help")==0) {
+        __write(_help_output, sizeof(_help_output));
         return 1;
     }
-	if(__string_compare(tokens[0],"showtime")) {
-        __command_showtime_callback(tokens[0],nargs);
+    if(__string_compare(_tokens[0],"print")==0) {
+        if (nargs < 1) return -2;
+        __command_print_callback(_tokens[0]);
+        return 1;
+    }
+	if(__string_compare(_tokens[0],"showtime")==0) {
+        if (nargs < 2) return -2;
+        __command_showtime_callback(__to_int(_tokens[0]), __to_int(_tokens[1]));
         return 1;
     }
 	
@@ -76,10 +92,10 @@ int Shell::execute(char *ptr, int size){
 }
 
 // Sets callback for the print command
-void Shell::setCommand_print_Callback(void(*ff)(char* arg, int nargs)){
+void Shell::setCommand_print_Callback(void(*ff)(char* text)){
     __command_print_callback = ff;
 }
 // Sets callback for the showtime command
-void Shell::setCommand_showtime_Callback(void(*ff)(char* arg, int nargs)){
+void Shell::setCommand_showtime_Callback(void(*ff)(int random ,int another)){
     __command_showtime_callback = ff;
 }

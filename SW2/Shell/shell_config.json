@@ -4,8 +4,8 @@
     "SHELL_MAX_ARGS"        : 20,
     "SHELL_MAX_TOKEN_LEN"   : 100,
     "CALLBACKS"             : [
-        ["print", "Prints some text on the screen"], 
-        ["showtime", "Does something funny"]
+        ["print", "Prints some text on the screen", ["char* text"]], 
+        ["showtime", "Does something funny", ["int random", "int another"]]
     ],
     "_INCLUDE_PATH"          : "./Inc",
     "_SOURCE_PATH"           : "./Src"

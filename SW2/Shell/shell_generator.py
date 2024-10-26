@@ -23,40 +23,57 @@ def read_config(name :str):
         if x in conf:
             variables[x] = conf[x]
 
+def generate_help_output(name : str, definition : str):
+    help : str = """{name} -> {definition}\\\n""".format(name=name, definition=definition)
+    return help
 
-def generate_callbacks_symbol(name : str):
+def generate_callbacks_symbol(name : str, args):
+    packaging : str = " ,".join(args)
     symbol : str = """// Sets callback for the {name} command
-        void setCommand_{name}_Callback(void(*ff)(char* arg, int nargs));\n\t\t""".format(name=name)
+        void setCommand_{name}_Callback(void(*ff)({packaging}));\n\t\t""".format(name=name,packaging=packaging)
     return symbol
 
-def generate_calback_variable(name : str):
-    variable : str = """void (*__command_{name}_callback)(char* arg, int nargs);\n\t\t""".format(name=name)
+def generate_callback_variable(name : str, args):
+    packaging : str = " ,".join(args)
+    variable : str = """void (*__command_{name}_callback)({packaging});\n\t\t""".format(name=name,packaging=packaging)
     return variable
 
 # GENERATING HEADER FILE
 def generate_header() -> str:
     variables["CALLBACKS_FUNCTIONS"] = ""
     variables["CALLBACKS_DECLARATIONS"] = ""
-    for i,_ in variables["CALLBACKS"]:
-        variables["CALLBACKS_FUNCTIONS"] += generate_callbacks_symbol(i)
-        variables["CALLBACKS_DECLARATIONS"] += generate_calback_variable(i)
+    variables["HELP_OUTPUT"] = ""
+    for i,y,z in variables["CALLBACKS"]:
+        variables["CALLBACKS_FUNCTIONS"] += generate_callbacks_symbol(i,z)
+        variables["CALLBACKS_DECLARATIONS"] += generate_callback_variable(i,z)
+        variables["HELP_OUTPUT"] += generate_help_output(i,y)
     with open("header.template", "r") as f:
         header = f.read()
     header = header.format(**variables)
     return header
 
-def generate_callback_execution(name : str):
-    variable : str = """if(__string_compare(tokens[0],"{name}")) {{
-        __command_{name}_callback(tokens[0],nargs);
+def generate_callback_execution(name : str, args):
+    size: str = len(args)
+    parameters = list()
+    for x,y in enumerate(args):
+        if "int" in args[x]:
+            parameters.append("__to_int(_tokens[{x}])".format(x=x))
+        else:
+            parameters.append("_tokens[{x}]".format(x=x))
+    parameters = ", ".join(parameters)
+    variable : str = """if(__string_compare(_tokens[0],"{name}")==0) {{
+        if (nargs < {size}) return -2;
+        __command_{name}_callback({parameters});
         return 1;
-    }}\n\t""".format(name=name)
+    }}\n\t""".format(name=name, size=size,parameters=parameters)
     return variable
 
-def generate_callback_setter(name :str):
+def generate_callback_setter(name :str, args):
+    packaging : str = " ,".join(args)
     setter : str = """// Sets callback for the {name} command
-void Shell::setCommand_{name}_Callback(void(*ff)(char* arg, int nargs)){{
+void Shell::setCommand_{name}_Callback(void(*ff)({packaging})){{
     __command_{name}_callback = ff;
-}}\n""".format(name=name)
+}}\n""".format(name=name,packaging=packaging)
     return setter
 
 # GENERATING SOURCE FILE
@@ -64,9 +81,9 @@ def generate_source() -> str:
     variables["LIB_NAME_LOWER"] = variables["LIB_NAME"].lower();
     variables["CALLBACKS_EXECUTION"] = ""
     variables["CALLBACKS_SETTERS"] = ""
-    for i,_ in variables["CALLBACKS"]:
-        variables["CALLBACKS_EXECUTION"] += generate_callback_execution(i)
-        variables["CALLBACKS_SETTERS"] += generate_callback_setter(i)
+    for i,_,z in variables["CALLBACKS"]:
+        variables["CALLBACKS_EXECUTION"] += generate_callback_execution(i,z)
+        variables["CALLBACKS_SETTERS"] += generate_callback_setter(i,z)
     with open("source.template", "r") as f:
         source = f.read()
     source = source.format(**variables)

@@ -1,10 +1,6 @@
 #ifndef __{LIB_NAME}_HPP__
 #define __{LIB_NAME}_HPP__
 
-#ifndef SHELL_BUFFER_SIZE
-#define SHELL_BUFFER_SIZE {SHELL_BUFFER_SIZE}
-#endif
-
 #ifndef SHELL_MAX_ARGS
 #define SHELL_MAX_ARGS {SHELL_MAX_ARGS}
 #endif
@@ -37,7 +33,17 @@ class Shell{{
         */
         void setStringCompare(int (*ff)(const char* x, const char* y));
 
-        const char* getBuffer();
+        /**
+        * Sets internal write operation.
+        *
+        * This command is specified by end user of the library, it can do almost everything.
+        * The idea is that caller can implement writing directly by peripheral or just store output to buffer.
+        *
+        * @param ff Pointer to the write function.
+        * @param str Pointer to the string to be written.
+        * @param len Length of the string.
+        */
+        void setWrite(int (*ff)(const char* str, int len));
 
         {CALLBACKS_FUNCTIONS}
         
@@ -55,10 +61,33 @@ class Shell{{
         * @return number of read tokens.
         */
         int tokenize(char *ptr, int size);
-        
+
+        /**
+        * "Writes".
+        *
+        * This command is specified by end user of the library, it can do almost everything.
+        * The idea is that caller can implement writing directly by peripheral or just store output to buffer.
+        *
+        * @param str Pointer to the string to be written
+        * @param len Length of the string.
+        * @return number of written characters.
+        */
+        int (*__write)(const char* str, int len);
+
+        /**
+        * Converts string to int.
+        *
+        * Example: Converts "1234" to 1234
+        * Detects end of the string using \0
+        *
+        * @param str Pointer to the string to be converted
+        * @return Converted number.
+        */
+        int __to_int(const char* str);
+
         int (*__string_compare)(const char* x, const char* y);
-        char tokens[{SHELL_MAX_ARGS}][{SHELL_MAX_TOKEN_LEN}];
-        char buffer[{SHELL_BUFFER_SIZE}];
+        char _tokens[{SHELL_MAX_ARGS}][{SHELL_MAX_TOKEN_LEN}];
+        const char* _help_output = "{HELP_OUTPUT}";
         {CALLBACKS_DECLARATIONS}
 }};
 

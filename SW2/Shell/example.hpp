@@ -1,10 +1,6 @@
 #ifndef __EXAMPLE_HPP__
 #define __EXAMPLE_HPP__
 
-#ifndef SHELL_BUFFER_SIZE
-#define SHELL_BUFFER_SIZE 255
-#endif
-
 #ifndef SHELL_MAX_ARGS
 #define SHELL_MAX_ARGS 20
 #endif
@@ -37,12 +33,22 @@ class Shell{
         */
         void setStringCompare(int (*ff)(const char* x, const char* y));
 
-        const char* getBuffer();
+        /**
+        * Sets internal write operation.
+        *
+        * This command is specified by end user of the library, it can do almost everything.
+        * The idea is that caller can implement writing directly by peripheral or just store output to buffer.
+        *
+        * @param ff Pointer to the write function.
+        * @param str Pointer to the string to be written.
+        * @param len Length of the string.
+        */
+        void setWrite(int (*ff)(const char* str, int len));
 
         // Sets callback for the print command
-        void setCommand_print_Callback(void(*ff)(char* arg, int nargs));
+        void setCommand_print_Callback(void(*ff)(char* text));
 		// Sets callback for the showtime command
-        void setCommand_showtime_Callback(void(*ff)(char* arg, int nargs));
+        void setCommand_showtime_Callback(void(*ff)(int random ,int another));
 		
         
     private:
@@ -59,12 +65,37 @@ class Shell{
         * @return number of read tokens.
         */
         int tokenize(char *ptr, int size);
-        
+
+        /**
+        * "Writes".
+        *
+        * This command is specified by end user of the library, it can do almost everything.
+        * The idea is that caller can implement writing directly by peripheral or just store output to buffer.
+        *
+        * @param str Pointer to the string to be written
+        * @param len Length of the string.
+        * @return number of written characters.
+        */
+        int (*__write)(const char* str, int len);
+
+        /**
+        * Converts string to int.
+        *
+        * Example: Converts "1234" to 1234
+        * Detects end of the string using \0
+        *
+        * @param str Pointer to the string to be converted
+        * @return Converted number.
+        */
+        int __to_int(const char* str);
+
         int (*__string_compare)(const char* x, const char* y);
-        char tokens[20][100];
-        char buffer[255];
-        void (*__command_print_callback)(char* arg, int nargs);
-		void (*__command_showtime_callback)(char* arg, int nargs);
+        char _tokens[20][100];
+        const char* _help_output = "print -> Prints some text on the screen\
+showtime -> Does something funny\
+";
+        void (*__command_print_callback)(char* text);
+		void (*__command_showtime_callback)(int random ,int another);
 		
 };
 
