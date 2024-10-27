@@ -1,0 +1,1 @@
+../Core/Src/uart_universal.cpp:24:5:int UART_UNIVERSAL_READ(UART_HandleTypeDef*, char*, int)	32	static

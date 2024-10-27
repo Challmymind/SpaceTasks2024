@@ -1,0 +1,11 @@
+{
+    "LIB_NAME"              :"SHELL",
+    "SHELL_MAX_ARGS"        : 20,
+    "SHELL_MAX_TOKEN_LEN"   : 100,
+    "CALLBACKS"             : [
+        ["print", "Prints some text on the screen", ["char* text"]], 
+        ["showtime", "Does something funny", ["char* random", "char* another"]]
+    ],
+    "INCLUDE_PATH"          : "./Inc",
+    "SOURCE_PATH"           : "./Src"
+}

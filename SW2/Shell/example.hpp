@@ -21,7 +21,7 @@ class Shell{
         * @param size Size of the ptr, prevents out of bounds errors.
         * @return -1 if there wasn't any token inside ptr, 0 if no command has been executed, 1 if some command has been executed.
         */
-        int execute(char *ptr, int size);
+        int execute(const char *ptr, int size);
 
         /**
         * Sets internal string comparator.
@@ -46,9 +46,9 @@ class Shell{
         void setWrite(int (*ff)(const char* str, int len));
 
         // Sets callback for the print command
-        void setCommand_print_Callback(void(*ff)(char* text));
+        void setCommand_print_Callback(void(*ff)(const char* text));
 		// Sets callback for the showtime command
-        void setCommand_showtime_Callback(void(*ff)(int random ,int another));
+        void setCommand_showtime_Callback(void(*ff)(const char* random ,const char* another));
 		
         
     private:
@@ -64,7 +64,7 @@ class Shell{
         * @param size Size of the ptr, prevents out of bounds errors.
         * @return number of read tokens.
         */
-        int tokenize(char *ptr, int size);
+        int tokenize(const char *ptr, int size);
 
         /**
         * "Writes".
@@ -87,15 +87,15 @@ class Shell{
         * @param str Pointer to the string to be converted
         * @return Converted number.
         */
-        int __to_int(const char* str);
+        //int __to_int(const char* str);
 
         int (*__string_compare)(const char* x, const char* y);
         char _tokens[20][100];
-        const char* _help_output = "print -> Prints some text on the screen\
-showtime -> Does something funny\
+        const char* _help_output = "print -> Prints some text on the screen\n\
+showtime -> Does something funny\n\
 ";
-        void (*__command_print_callback)(char* text);
-		void (*__command_showtime_callback)(int random ,int another);
+        void (*__command_print_callback)(const char* text);
+		void (*__command_showtime_callback)(const char* random ,const char* another);
 		
 };
 
