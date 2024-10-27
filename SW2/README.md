@@ -55,3 +55,63 @@ Only when transaction is completed function will report about results via return
 I was lacking UART-USB converted so i decided to use my rp pico h with [this library](https://github.com/Noltari/pico-uart-bridge). Worked perfectly.
 Also i just tested one function because i supplied only one callback, others before initializing will result in Fault_Handler at best.
 ![Recaived UART!](https://github.com/Challmymind/SpaceTasks2024/blob/main/SW2/working_via_uart_STM32F401.png)
+### Updated + Step by Step process
+Decided to move away from help command design and now it's treated as normal command. <br>
+PC Example of new tweaks:
+![Tweak!](https://github.com/Challmymind/SpaceTasks2024/blob/main/SW2/final_help_tweaks.png)
+Don't forget to generate code -> you can use my autogenerate tip. <br>
+Latest config:
+```json
+{
+    "LIB_NAME"              :"SHELL",
+    "SHELL_MAX_ARGS"        : 20,
+    "SHELL_MAX_TOKEN_LEN"   : 100,
+    "CALLBACKS"             : [
+        ["print", "Prints some text on the screen", ["const char* text"]], 
+        ["showtime", "Does something funny", ["const char* random", "const char* another"]],
+        ["help", "Prints all commands and their descriptions", []]
+    ],
+    "INCLUDE_PATH"          : "./Inc",
+    "SOURCE_PATH"           : "./Src"
+}
+```
+Functions definitions (end user does that):
+```cpp
+void print(const char* string){
+	HAL_UART_Transmit(&huart1, (uint8_t*)string, strlen(string), 2000);
+}
+void help(){
+	HAL_UART_Transmit(&huart1, (uint8_t*)HELP_OUTPUT, strlen(HELP_OUTPUT), 2000);
+}
+void showtime(const char*, const char*){
+	const char* x = "crazy show";
+	HAL_UART_Transmit(&huart1, (uint8_t*)x, strlen(x), 2000);
+}
+```
+Shell setup (library generated commands):
+```cpp
+// Create shell class
+Shell shell;
+shell.setStringCompare(strcmp);
+// Set all calbacks
+shell.setCommand_print_Callback(print);
+shell.setCommand_help_Callback(help);
+shell.setCommand_showtime_Callback(showtime);
+```
+Main loop (UART_UNIVERSAL_READ solution will be also provided in STM32G474RET3 library version)
+```cpp
+while (1)
+{
+// its safe conversion
+//	HAL_UART_Transmit(&huart1, (uint8_t*)hello, 5, 2000);
+//	HAL_Delay(1000);
+int bytes = UART_UNIVERSAL_READ(&huart1, (char*)rx_buff, 255);
+if(bytes > 0) shell.execute((char*)rx_buff, bytes);
+
+/* USER CODE END WHILE */
+
+}
+```
+Screen from console UART STM32F401 using rpi pico as UART-USB converter
+![Console!](https://github.com/Challmymind/SpaceTasks2024/blob/main/SW2/uart_screen.png)
+To have better printing user should create more robust callbacks bodies and not just throw unprepared strings like i did.
