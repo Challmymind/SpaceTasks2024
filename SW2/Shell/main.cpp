@@ -19,12 +19,16 @@ void showtimme(const char* x, const char* y){
 
 }
 
+void help(){
+    std::printf(HELP_OUTPUT);
+}
+
 int main(){
     Shell shell;
     shell.setStringCompare(std::strcmp);
     shell.setCommand_print_Callback(print);
     shell.setCommand_showtime_Callback(showtimme);
-    shell.setWrite(write);
+    shell.setCommand_help_Callback(help);
 
     std::string s;
     while(std::getline(std::cin, s)){

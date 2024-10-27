@@ -24,7 +24,7 @@ def read_config(name :str):
             variables[x] = conf[x]
 
 def generate_help_output(name : str, definition : str):
-    help : str = """{name} -> {definition}\\n\\\n""".format(name=name, definition=definition)
+    help : str = """{name} -> {definition}\\n\\r\\\n""".format(name=name, definition=definition)
     return help
 
 def generate_callbacks_symbol(name : str, args):

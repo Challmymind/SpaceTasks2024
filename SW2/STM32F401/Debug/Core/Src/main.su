@@ -1,7 +1,8 @@
-../Core/Src/main.cpp:62:6:void print(char*)	24	static
-../Core/Inc/shell.hpp:12:7:Shell::Shell()	16	static
-../Core/Src/main.cpp:72:5:int main()	2296	static
-../Core/Src/main.cpp:128:6:void SystemClock_Config()	88	static
-../Core/Src/main.cpp:170:13:void MX_USART1_UART_Init()	8	static
-../Core/Src/main.cpp:203:13:void MX_GPIO_Init()	16	static
-../Core/Src/main.cpp:223:6:void Error_Handler()	4	static,ignoring_inline_asm
+../Core/Src/main.cpp:62:6:void print(const char*)	16	static
+../Core/Src/main.cpp:65:6:void help()	16	static
+../Core/Src/main.cpp:68:6:void showtime(const char*, const char*)	24	static
+../Core/Src/main.cpp:78:5:int main()	2288	static
+../Core/Src/main.cpp:136:6:void SystemClock_Config()	88	static
+../Core/Src/main.cpp:178:13:void MX_USART1_UART_Init()	8	static
+../Core/Src/main.cpp:211:13:void MX_GPIO_Init()	16	static
+../Core/Src/main.cpp:231:6:void Error_Handler()	4	static,ignoring_inline_asm

@@ -1,7 +1,8 @@
-../Core/Src/main.cpp:62:6:void print(char*)	1
-../Core/Inc/shell.hpp:12:7:Shell::Shell()	1
-../Core/Src/main.cpp:72:5:int main()	2
-../Core/Src/main.cpp:128:6:void SystemClock_Config()	3
-../Core/Src/main.cpp:170:13:void MX_USART1_UART_Init()	2
-../Core/Src/main.cpp:203:13:void MX_GPIO_Init()	1
-../Core/Src/main.cpp:223:6:void Error_Handler()	1
+../Core/Src/main.cpp:62:6:void print(const char*)	1
+../Core/Src/main.cpp:65:6:void help()	1
+../Core/Src/main.cpp:68:6:void showtime(const char*, const char*)	1
+../Core/Src/main.cpp:78:5:int main()	2
+../Core/Src/main.cpp:136:6:void SystemClock_Config()	3
+../Core/Src/main.cpp:178:13:void MX_USART1_UART_Init()	2
+../Core/Src/main.cpp:211:13:void MX_GPIO_Init()	1
+../Core/Src/main.cpp:231:6:void Error_Handler()	1

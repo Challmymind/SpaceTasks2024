@@ -9,6 +9,23 @@
 #define SHELL_MAX_TOKEN_LEN 100
 #endif
 
+
+/**
+* Help output.
+*
+* String compiled from definitions provided in config file for each callback.
+* Can be used to implement descriptions printing.
+*/
+extern const char* HELP_OUTPUT;
+
+
+/**
+* Shell class for implementing callbacks.
+*
+* Provides a simple way to call user defined callbacks without manually modifing source code.
+* Makes it easier new maintainers to add commands on the fly using config file without knowning internal structure.
+* Shell goal is to become envoirment agnostic but free of source code modifications in order to port to desire end device.
+*/
 class Shell{
     public:
 
@@ -33,22 +50,12 @@ class Shell{
         */
         void setStringCompare(int (*ff)(const char* x, const char* y));
 
-        /**
-        * Sets internal write operation.
-        *
-        * This command is specified by end user of the library, it can do almost everything.
-        * The idea is that caller can implement writing directly by peripheral or just store output to buffer.
-        *
-        * @param ff Pointer to the write function.
-        * @param str Pointer to the string to be written.
-        * @param len Length of the string.
-        */
-        void setWrite(int (*ff)(const char* str, int len));
-
         // Sets callback for the print command
         void setCommand_print_Callback(void(*ff)(const char* text));
 		// Sets callback for the showtime command
         void setCommand_showtime_Callback(void(*ff)(const char* random ,const char* another));
+		// Sets callback for the help command
+        void setCommand_help_Callback(void(*ff)());
 		
         
     private:
@@ -67,18 +74,6 @@ class Shell{
         int tokenize(const char *ptr, int size);
 
         /**
-        * "Writes".
-        *
-        * This command is specified by end user of the library, it can do almost everything.
-        * The idea is that caller can implement writing directly by peripheral or just store output to buffer.
-        *
-        * @param str Pointer to the string to be written
-        * @param len Length of the string.
-        * @return number of written characters.
-        */
-        int (*__write)(const char* str, int len);
-
-        /**
         * Converts string to int.
         *
         * Example: Converts "1234" to 1234
@@ -91,11 +86,9 @@ class Shell{
 
         int (*__string_compare)(const char* x, const char* y);
         char _tokens[20][100];
-        const char* _help_output = "print -> Prints some text on the screen\n\
-showtime -> Does something funny\n\
-";
         void (*__command_print_callback)(const char* text);
 		void (*__command_showtime_callback)(const char* random ,const char* another);
+		void (*__command_help_callback)();
 		
 };
 

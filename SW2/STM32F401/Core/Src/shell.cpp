@@ -1,5 +1,11 @@
 #include "shell.hpp"
 
+// Must be inside source file to prevent ODR violation
+const char* HELP_OUTPUT = "print -> Prints some text on the screen\n\r\
+showtime -> Does something funny\n\r\
+help -> Prints all commands and their descriptions\n\r\
+";
+
 /**
  * Tokenize input.
  *
@@ -87,20 +93,6 @@ void Shell::setStringCompare(int (*ff)(const char *, const char *)){
 }
 
 /**
-* Sets internal write operation.
-*
-* This command is specified by end user of the library, it can do almost everything.
-* The idea is that caller can implement writing directly by peripheral or just store output to buffer.
-*
-* @param ff Pointer to the write function.
-* @param str Pointer to the string to be written.
-* @param len Length of the string.
-*/
-void Shell::setWrite(int (*ff)(const char* str, int len)){
-    __write = ff;
-}
-
-/**
  * Execute shell's main logic.
  *
  * Checks for commands and executes callback if any has been found.
@@ -112,10 +104,6 @@ void Shell::setWrite(int (*ff)(const char* str, int len)){
 int Shell::execute(const char *ptr, int size){
     int nargs = tokenize(ptr, size);
     if(nargs == 0) return -1;
-    if(__string_compare(_tokens[0],"help")==0) {
-        __write(_help_output, sizeof(_help_output));
-        return 1;
-    }
     if(__string_compare(_tokens[0],"print")==0) {
         if (nargs < 1) return -2;
         __command_print_callback(_tokens[1]);
@@ -126,16 +114,25 @@ int Shell::execute(const char *ptr, int size){
         __command_showtime_callback(_tokens[1], _tokens[2]);
         return 1;
     }
+	if(__string_compare(_tokens[0],"help")==0) {
+        if (nargs < 0) return -2;
+        __command_help_callback();
+        return 1;
+    }
 	
     return 0;
  
 }
 
 // Sets callback for the print command
-void Shell::setCommand_print_Callback(void(*ff)(char* text)){
+void Shell::setCommand_print_Callback(void(*ff)(const char* text)){
     __command_print_callback = ff;
 }
 // Sets callback for the showtime command
-void Shell::setCommand_showtime_Callback(void(*ff)(char* random ,char* another)){
+void Shell::setCommand_showtime_Callback(void(*ff)(const char* random ,const char* another)){
     __command_showtime_callback = ff;
+}
+// Sets callback for the help command
+void Shell::setCommand_help_Callback(void(*ff)()){
+    __command_help_callback = ff;
 }

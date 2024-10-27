@@ -59,9 +59,15 @@ static void MX_USART1_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-void print(char* string){
-	const char* x = "anything for you\r\n";
-	HAL_UART_Transmit(&huart1, (uint8_t*)x, 17, 2000);
+void print(const char* string){
+	HAL_UART_Transmit(&huart1, (uint8_t*)string, strlen(string), 2000);
+}
+void help(){
+	HAL_UART_Transmit(&huart1, (uint8_t*)HELP_OUTPUT, strlen(HELP_OUTPUT), 2000);
+}
+void showtime(const char*, const char*){
+	const char* x = "crazy show";
+	HAL_UART_Transmit(&huart1, (uint8_t*)x, strlen(x), 2000);
 }
 /* USER CODE END 0 */
 
@@ -97,11 +103,13 @@ int main(void)
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
   uint8_t rx_buff[255];
-  char* hello = "hello";
+  // Create shell class
   Shell shell;
   shell.setStringCompare(strcmp);
-  // Set print callback to validate code
+  // Set all calbacks
   shell.setCommand_print_Callback(print);
+  shell.setCommand_help_Callback(help);
+  shell.setCommand_showtime_Callback(showtime);
   /* USER CODE END 2 */
 
   /* Infinite loop */

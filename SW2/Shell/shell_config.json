@@ -4,7 +4,8 @@
     "SHELL_MAX_TOKEN_LEN"   : 100,
     "CALLBACKS"             : [
         ["print", "Prints some text on the screen", ["const char* text"]], 
-        ["showtime", "Does something funny", ["const char* random", "const char* another"]]
+        ["showtime", "Does something funny", ["const char* random", "const char* another"]],
+        ["help", "Prints all commands and their descriptions", []]
     ],
     "_INCLUDE_PATH"          : "./Inc",
     "_SOURCE_PATH"           : "./Src"

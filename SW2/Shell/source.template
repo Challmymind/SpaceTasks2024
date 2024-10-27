@@ -1,5 +1,8 @@
 #include "{LIB_NAME_LOWER}.hpp"
 
+// Must be inside source file to prevent ODR violation
+const char* HELP_OUTPUT = "{HELP_OUTPUT}";
+
 /**
  * Tokenize input.
  *
@@ -87,20 +90,6 @@ void Shell::setStringCompare(int (*ff)(const char *, const char *)){{
 }}
 
 /**
-* Sets internal write operation.
-*
-* This command is specified by end user of the library, it can do almost everything.
-* The idea is that caller can implement writing directly by peripheral or just store output to buffer.
-*
-* @param ff Pointer to the write function.
-* @param str Pointer to the string to be written.
-* @param len Length of the string.
-*/
-void Shell::setWrite(int (*ff)(const char* str, int len)){{
-    __write = ff;
-}}
-
-/**
  * Execute shell's main logic.
  *
  * Checks for commands and executes callback if any has been found.
@@ -112,10 +101,6 @@ void Shell::setWrite(int (*ff)(const char* str, int len)){{
 int Shell::execute(const char *ptr, int size){{
     int nargs = tokenize(ptr, size);
     if(nargs == 0) return -1;
-    if(__string_compare(_tokens[0],"help")==0) {{
-        __write(_help_output, sizeof(_help_output));
-        return 1;
-    }}
     {CALLBACKS_EXECUTION}
     return 0;
  
