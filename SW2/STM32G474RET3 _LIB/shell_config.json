@@ -1,0 +1,12 @@
+{
+    "LIB_NAME"              :"SHELLGEN",
+    "SHELL_MAX_ARGS"        : 20,
+    "SHELL_MAX_TOKEN_LEN"   : 100,
+    "CALLBACKS"             : [
+        ["print", "Prints some text on the screen", ["const char* text"]], 
+        ["showtime", "Does something funny", ["const char* random", "const char* another"]],
+        ["help", "Prints all commands and their descriptions", []]
+    ],
+    "INCLUDE_PATH"          : "./Inc",
+    "SOURCE_PATH"           : "./Src"
+}

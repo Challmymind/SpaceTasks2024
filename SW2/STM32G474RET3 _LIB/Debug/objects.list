@@ -1,0 +1,6 @@
+"./Drivers/CMSIS/Device/ST/STM32G4xx/Source/Templates/system_stm32g4xx.o"
+"./Src/main.o"
+"./Src/shellgen.o"
+"./Src/syscalls.o"
+"./Src/sysmem.o"
+"./Src/uart_universal.o"
