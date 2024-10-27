@@ -18,13 +18,17 @@ That's right, my library code do not need any by-hand modifications in order to 
 and my script will re-generate library with proper callback pointer, callback setters and check in main execution function. User can even add description which 
 is shown when help command is invoked. Library will handle tokenization and casting by itself (mostly). Now only what user must do is to set new callback using
 generated setter.
+## Preview on PC
+![Preview!](https://github.com/Challmymind/SpaceTasks2024/blob/main/SW2/working_on_pc.png)
 
 ## How to use
 1. Create config file
 2. Generate code
-3. Set obligatory functions setter in code
-4. Set defined callbacks
-5. Compile
+   Tip for CubeIde! You can set pre-build step in order to make it automatic (as intended)
+   ![Auto Auto!](https://github.com/Challmymind/SpaceTasks2024/blob/main/SW2/pre_build_tip.png)
+4. Set obligatory functions setters in code
+5. Set defined callbacks
+6. Compile
 
 ## Example json config 
 ```
@@ -41,4 +45,13 @@ generated setter.
 }
 ```
 
-## Integration with STM32G474RET3 incoming
+## Integration with STM32G474RET3 WORKING
+### How?
+My librarary needs to read arbitrary amount of data from any source but HAL UART doesn't provide such function.
+In order to make it simple i created additional uart_universial.hpp and uart_universial.cpp to provide solution.
+Provided function is blocking meaning that it blocks thread but it's more like small delay because it saves state and returns whenever possible.
+Only when transaction is completed function will report about results via return value.
+### Testing
+I was lacking UART-USB converted so i decided to use my rp pico h with [this library](https://github.com/Noltari/pico-uart-bridge). Worked perfectly.
+Also i just tested one function because i supplied only one callback, others before initializing will result in Fault_Handler at best.
+![Recaived UART!](https://github.com/Challmymind/SpaceTasks2024/blob/main/SW2/working_via_uart_STM32F401.png)
