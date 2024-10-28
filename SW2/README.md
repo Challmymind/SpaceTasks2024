@@ -45,7 +45,7 @@ generated setter.
 }
 ```
 
-## Integration with STM32G474RET3 WORKING
+## Integration with STM32F401 WORKING
 ### How?
 My librarary needs to read arbitrary amount of data from any source but HAL UART doesn't provide such function.
 In order to make it simple i created additional uart_universial.hpp and uart_universial.cpp to provide solution.
@@ -115,3 +115,5 @@ if(bytes > 0) shell.execute((char*)rx_buff, bytes);
 Screen from console UART STM32F401 using rpi pico as UART-USB converter
 ![Console!](https://github.com/Challmymind/SpaceTasks2024/blob/main/SW2/uart_screen.png)
 To have better printing user should create more robust callbacks bodies and not just throw unprepared strings like i did.
+## STM32G474RET Library
+Callbacks are not implemented, library provides callbacks setters dynamically created when compiling after changing shell_config.json (user can add and delete existing callbacks). Library user must provided callbacks functions like in the examples above (STM32F401) and run main function in loop. Library also provides useful and integral part for UART communication: uart_universal implementation for continous read using hal uart.
