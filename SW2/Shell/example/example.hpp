@@ -1,12 +1,12 @@
-#ifndef __{LIB_NAME}_HPP__
-#define __{LIB_NAME}_HPP__
+#ifndef __EXAMPLE_HPP__
+#define __EXAMPLE_HPP__
 
 #ifndef SHELL_MAX_ARGS
-#define SHELL_MAX_ARGS {SHELL_MAX_ARGS}
+#define SHELL_MAX_ARGS 20
 #endif
 
 #ifndef SHELL_MAX_TOKEN_LEN
-#define SHELL_MAX_TOKEN_LEN {SHELL_MAX_TOKEN_LEN}
+#define SHELL_MAX_TOKEN_LEN 100
 #endif
 
 
@@ -24,7 +24,7 @@ extern const char* HELP_OUTPUT;
 * Makes it easier for new maintainers to add commands on the fly using the config file without knowing the internal structure. 
 * Shell goal is to become envoirment agnostic, so no need for additional porting of the class itself.
 */
-class Shell{{
+class Shell{
     public:
 
         /**
@@ -50,7 +50,22 @@ class Shell{{
 
         /** START OF THE AUTO-GENERATED CALLBACK SETTERS. */
 
-        {CALLBACKS_FUNCTIONS}
+        /** Sets a callback for the command print.
+        * Config description: Prints some text on the screen.
+        */
+        void setCommand_print_Callback(void(*ff)(const char* text));
+
+		/** Sets a callback for the command showtime.
+        * Config description: Does something funny.
+        */
+        void setCommand_showtime_Callback(void(*ff)(const char* random ,const char* another));
+
+		/** Sets a callback for the command help.
+        * Config description: Prints all commands and their descriptions.
+        */
+        void setCommand_help_Callback(void(*ff)());
+
+		
         /** END OF THE AUTO-GENERATED CALLBACK SETTERS. */
         
     private:
@@ -76,12 +91,15 @@ class Shell{{
         /**
         * Buffer for tokens.
         */
-        char _tokens[{SHELL_MAX_ARGS}][{SHELL_MAX_TOKEN_LEN}];
+        char _tokens[20][100];
 
         /** START OF THE AUTO-GENERATED CALLBACK POINTERS. */
 
-        {CALLBACKS_DECLARATIONS}
+        void (*__command_print_callback)(const char* text);
+		void (*__command_showtime_callback)(const char* random ,const char* another);
+		void (*__command_help_callback)();
+		
         /** END OF THE AUTO-GENERATED CALLBACK FUNCTIONS. */
-}};
+};
 
 #endif

@@ -7,6 +7,7 @@
         ["showtime", "Does something funny", ["const char* random", "const char* another"]],
         ["help", "Prints all commands and their descriptions", []]
     ],
-    "_INCLUDE_PATH"          : "./Inc",
-    "_SOURCE_PATH"           : "./Src"
+    "INCLUDE_PATH"          : "./example",
+    "SOURCE_PATH"           : "./example",
+    "_COMMENT": ""
 }
