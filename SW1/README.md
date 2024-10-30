@@ -2,9 +2,9 @@
 WS2812B LED library. I've decided to do it differently than most common libraries do: <br>
 [FastLED](https://github.com/FastLED/FastLED) - uses SPI. <br>
 [Adafruit_NeoPixel ](https://github.com/adafruit/Adafruit_NeoPixel) - looks like it's using GPIO bit bang. <br><br>
-Both disigns have some pros and cons:
+Both designs have some pros and cons:
 SPI is fast and reliable, but it wastes a whole interface just to control a strip of LEDs. <br>
-Bit banging is much easier to port to other controllers and even families, but it can be unreliable and waste a lot of CPU. <br>
+Bit banging is much easier to port to other controllers and even families, but it can be unreliable and wastes a lot of CPU. <br>
 CPU wasting in both designs can be adressed by DMA but then adds complexity to porting. <br>
 
 I decided to use PWM + DMA as for me it seems like a good middle ground. Uses only one pin and does not compromise accuracy. Porting to other stm32 devices is also easy.
@@ -34,12 +34,31 @@ Short tutorial on how to integrate my library.
 7. Enjoy
 
 ## Defines
-TODO
+Defaults assume 16Hz clock of STM32G474RET. To adapt to other MCUs, make sure that new timings are set with [WS2812B specification](https://cdn-shop.adafruit.com/datasheets/WS2812B.pdf).
+The header file uses ifndef guard for each define, allowing compile-time overrides. List of defines:
+* HIGH_PWM_DUTY -> Needs to comply with timings for logical 1 WS2812B protocol. ount when PWM drop signal goes to low. Basically the width of the pulse. 
+* LOW_PWM_DUTY  -> Needs to comply with timings for logical 0 WS2812B protocol. Count when PWM drop signal goes to low. Basically the width of the pulse.
+* RES_PWM_DUTY  -> Width od the pulse for reset signal. Can be left at 0 always.
+
 ## Strip
-TODO
+Strip class requires information about the length of the strip at compile time. More importantly, how to modulate diods and create light patterns when the function calls callback.
+```cpp
+int (*_modulation)(LED* led, const int i, const int feedback)
+```
+The clever design that makes more complex patterns possible and easy is the use of feedback from other devices in the strip. Each run loop provides a callback function with LED abstraction, allowing the user to modulate colours, index in the strip to adjust for length-related patterns and, most importantly, returned value of the previous LED to use as feedback.<br>
+Strip is a template class that requires compile time length to create an array.
 
 # STM32G474RET APP
-TODO
+App implements WS2812B library and set's colors to desired patterns.
+* Red is a square wave with a pulse width of 50%.
+* Green is a sawtooth signal.
+* Blue blinks 3 times when choosen gpio will be shorted.
+```cpp
+void update_click(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin){
+	if(HAL_GPIO_ReadPin(GPIOx, GPIO_Pin)) clicked = 1;
+	else clicked = 0;
+}
+```
 
 # Possible improvements
-TODO
+If it were to become a real library, a real application, it should at least implement things like brightness adjustment independent of modulation. GPIO reads should also be swapped to interrupts to ensure that nothing is missed.
