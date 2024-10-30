@@ -59,6 +59,9 @@ static void MX_USART1_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
+// Callbacks for use with functions defined within config.
+// To add a new command to the shell, add it to the config file and re-generate shell library using script.
 void print(const char* string){
 	HAL_UART_Transmit(&huart1, (uint8_t*)string, strlen(string), 2000);
 }
@@ -102,11 +105,13 @@ int main(void)
   MX_GPIO_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
+  // Message buffer
   uint8_t rx_buff[255];
   // Create shell class
   Shell shell;
+  // Shell objects need to be provided with a compare function for string.  This should make porting easier.
   shell.setStringCompare(strcmp);
-  // Set all calbacks
+  // Set all callbacks
   shell.setCommand_print_Callback(print);
   shell.setCommand_help_Callback(help);
   shell.setCommand_showtime_Callback(showtime);
@@ -116,10 +121,9 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	// its safe conversion
-//	HAL_UART_Transmit(&huart1, (uint8_t*)hello, 5, 2000);
-//	HAL_Delay(1000);
+	// Read message from the UART
 	int bytes = UART_UNIVERSAL_READ(&huart1, (char*)rx_buff, 255);
+	// Perform main shell function
 	if(bytes > 0) shell.execute((char*)rx_buff, bytes);
 
     /* USER CODE END WHILE */

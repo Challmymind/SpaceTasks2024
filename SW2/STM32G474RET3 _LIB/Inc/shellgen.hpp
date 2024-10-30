@@ -11,85 +11,95 @@
 
 
 /**
-* Help output.
-*
-* String compiled from definitions provided in config file for each callback.
-* Can be used to implement descriptions printing.
+* String compiled from definitions provided in the config file for each callback. 
+* Can be used to implement printing of descriptions.
 */
 extern const char* HELP_OUTPUT;
 
 
 /**
-* Shell class for implementing callbacks.
+* Shell class based on the implementation of callbacks.
 *
-* Provides a simple way to call user defined callbacks without manually modifing source code.
-* Makes it easier new maintainers to add commands on the fly using config file without knowning internal structure.
-* Shell goal is to become envoirment agnostic but free of source code modifications in order to port to desire end device.
+* Provides an easy way to invoke custom callbacks without manually modifying the source code. 
+* Makes it easier for new maintainers to add commands on the fly using the config file without knowing the internal structure. 
+* Shell goal is to become envoirment agnostic, so no need for additional porting of the class itself.
 */
 class Shell{
     public:
 
         /**
-        * Execute shell's main logic.
+        * Execute the main logic of the shell.
         *
-        * Checks for commands and executes callback if any has been found.
+        * Checks for commands and performs a callback if one is found.
         *
-        * @param ptr Pointer to string that must be parsed, can be any input ex. string from UART buffer.
+        * @param ptr Pointer to string to parse, can be any input e.g. string from UART buffer.
         * @param size Size of the ptr, prevents out of bounds errors.
-        * @return -1 if there wasn't any token inside ptr, 0 if no command has been executed, 1 if some command has been executed.
+        * @return -1 if there's no token in ptr, 0 if no command was executed, 1 if any command was executed.
         */
         int execute(const char *ptr, int size);
 
         /**
-        * Sets internal string comparator.
+        * Sets the internal string comparator.
         *
-        * Comparator should return 0 if strings are equal, all others outputs will be treated as failure.
-        * It must be set explicit before executing Shell::execute to prevent undefined behaviour.
+        * The comparator should return 0 if the strings are equal, all other outputs are treated as not equal. 
+        * It must be set explicitly before calling Shell::execute to avoid undefined behaviour.
         *
-        * @param ff Pointer to comparator function.
+        * @param ff Pointer to the comparator function.
         */
         void setStringCompare(int (*ff)(const char* x, const char* y));
 
-        // Sets callback for the print command
+        /** START OF THE AUTO-GENERATED CALLBACK SETTERS. */
+
+        /** Sets a callback for the command print.
+        * Config description: Prints some text on the screen.
+        */
         void setCommand_print_Callback(void(*ff)(const char* text));
-		// Sets callback for the showtime command
+
+		/** Sets a callback for the command showtime.
+        * Config description: Does something funny.
+        */
         void setCommand_showtime_Callback(void(*ff)(const char* random ,const char* another));
-		// Sets callback for the help command
+
+		/** Sets a callback for the command help.
+        * Config description: Prints all commands and their descriptions.
+        */
         void setCommand_help_Callback(void(*ff)());
+
 		
+        /** END OF THE AUTO-GENERATED CALLBACK SETTERS. */
         
     private:
 
         /**
-        * Tokenize input.
+        * Tokenise input.
         *
-        * Input as one long string with white spaces isn't that helpful.
-        * This funtions splits input into smaller tokens. Max tokens count is defined by SHELL_MAX_ARGS
-        * Max token size is defined by SHELL_MAX_TOKEN_LEN
+        * This function splits the input string into smaller tokens. 
+        * The maximum number of tokens is defined by SHELL_MAX_ARGS. 
+        * The maximum size of the token is defined by SHELL_MAX_TOKEN_LEN.
         *
-        * @param ptr Pointer to string to be tokenized, can be any input ex. string from UART buffer.
+        * @param ptr Pointer to string to tokenise, can be any input e.g. string from UART buffer.
         * @param size Size of the ptr, prevents out of bounds errors.
-        * @return number of read tokens.
+        * @return The number of tokens that were read.
         */
         int tokenize(const char *ptr, int size);
 
         /**
-        * Converts string to int.
-        *
-        * Example: Converts "1234" to 1234
-        * Detects end of the string using \0
-        *
-        * @param str Pointer to the string to be converted
-        * @return Converted number.
+        * Pointer to the compare function. Make sure it's set before Shell::execute.
         */
-        //int __to_int(const char* str);
-
         int (*__string_compare)(const char* x, const char* y);
+
+        /**
+        * Buffer for tokens.
+        */
         char _tokens[20][100];
+
+        /** START OF THE AUTO-GENERATED CALLBACK POINTERS. */
+
         void (*__command_print_callback)(const char* text);
 		void (*__command_showtime_callback)(const char* random ,const char* another);
 		void (*__command_help_callback)();
 		
+        /** END OF THE AUTO-GENERATED CALLBACK FUNCTIONS. */
 };
 
 #endif

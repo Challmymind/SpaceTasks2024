@@ -37,11 +37,11 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING, OCTETS
  16 .debug_macro  000175a5  00000000  00000000  0000e105  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 17 .debug_line   00008632  00000000  00000000  000256aa  2**0
+ 17 .debug_line   00008631  00000000  00000000  000256aa  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_str    000866e7  00000000  00000000  0002dcdc  2**0
+ 18 .debug_str    000866e7  00000000  00000000  0002dcdb  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .comment      00000043  00000000  00000000  000b43c3  2**0
+ 19 .comment      00000043  00000000  00000000  000b43c2  2**0
                   CONTENTS, READONLY
  20 .debug_frame  00001a00  00000000  00000000  000b4408  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
@@ -364,11 +364,11 @@ Disassembly of section .text:
  80004e6:	bf00      	nop
 
 080004e8 <_Z5printPKc>:
-
-/* USER CODE END PFP */
-
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
+// Callbacks for use with functions defined within config.
+// To add a new command to the shell, add it to the config file and re-generate shell library using script.
 void print(const char* string){
  80004e8:	b580      	push	{r7, lr}
  80004ea:	b082      	sub	sp, #8
@@ -475,16 +475,17 @@ int main(void)
  8000588:	f000 f8ce 	bl	8000728 <_ZL12MX_GPIO_Initv>
   MX_USART1_UART_Init();
  800058c:	f000 f89e 	bl	80006cc <_ZL19MX_USART1_UART_Initv>
-  /* USER CODE BEGIN 2 */
+  // Message buffer
   uint8_t rx_buff[255];
   // Create shell class
   Shell shell;
+  // Shell objects need to be provided with a compare function for string.  This should make porting easier.
   shell.setStringCompare(strcmp);
  8000590:	1d3b      	adds	r3, r7, #4
  8000592:	4914      	ldr	r1, [pc, #80]	@ (80005e4 <main+0x6c>)
  8000594:	4618      	mov	r0, r3
  8000596:	f000 f993 	bl	80008c0 <_ZN5Shell16setStringCompareEPFiPKcS1_E>
-  // Set all calbacks
+  // Set all callbacks
   shell.setCommand_print_Callback(print);
  800059a:	1d3b      	adds	r3, r7, #4
  800059c:	4912      	ldr	r1, [pc, #72]	@ (80005e8 <main+0x70>)
@@ -500,11 +501,11 @@ int main(void)
  80005b0:	490f      	ldr	r1, [pc, #60]	@ (80005f0 <main+0x78>)
  80005b2:	4618      	mov	r0, r3
  80005b4:	f000 fa19 	bl	80009ea <_ZN5Shell28setCommand_showtime_CallbackEPFvPKcS1_E>
+  /* Infinite loop */
+  /* USER CODE BEGIN WHILE */
   while (1)
   {
-	// its safe conversion
-//	HAL_UART_Transmit(&huart1, (uint8_t*)hello, 5, 2000);
-//	HAL_Delay(1000);
+	// Read message from the UART
 	int bytes = UART_UNIVERSAL_READ(&huart1, (char*)rx_buff, 255);
  80005b8:	f207 73e4 	addw	r3, r7, #2020	@ 0x7e4
  80005bc:	22ff      	movs	r2, #255	@ 0xff
@@ -512,6 +513,7 @@ int main(void)
  80005c0:	480c      	ldr	r0, [pc, #48]	@ (80005f4 <main+0x7c>)
  80005c2:	f000 fae3 	bl	8000b8c <_Z19UART_UNIVERSAL_READP20__UART_HandleTypeDefPci>
  80005c6:	f8c7 08e4 	str.w	r0, [r7, #2276]	@ 0x8e4
+	// Perform main shell function
 	if(bytes > 0) shell.execute((char*)rx_buff, bytes);
  80005ca:	f8d7 38e4 	ldr.w	r3, [r7, #2276]	@ 0x8e4
  80005ce:	2b00      	cmp	r3, #0
@@ -801,11 +803,11 @@ __STATIC_FORCEINLINE void __disable_irq(void)
  8000766:	e7fd      	b.n	8000764 <Error_Handler+0x8>
 
 08000768 <_ZN5Shell8tokenizeEPKci>:
- *
- * @param ptr Pointer to string to be tokenized, can be any input ex. string from UART buffer.
- * @param size Size of the ptr, prevents out of bounds errors.
- * @return number of read _tokens, -1 if some error occured (like invalid syntax)
- */
+*
+* @param ptr Pointer to string to tokenise, can be any input e.g. string from UART buffer.
+* @param size Size of the ptr, prevents out of bounds errors.
+* @return The number of tokens that were read.
+*/
 int Shell::tokenize(const char* ptr, int size){
  8000768:	b480      	push	{r7}
  800076a:	b08b      	sub	sp, #44	@ 0x2c
@@ -819,7 +821,7 @@ int Shell::tokenize(const char* ptr, int size){
  8000778:	d102      	bne.n	8000780 <_ZN5Shell8tokenizeEPKci+0x18>
  800077a:	f04f 33ff 	mov.w	r3, #4294967295
  800077e:	e099      	b.n	80008b4 <_ZN5Shell8tokenizeEPKci+0x14c>
-    // Tracks last accessed index
+    // Last access track index
     int current = 0;
  8000780:	2300      	movs	r3, #0
  8000782:	627b      	str	r3, [r7, #36]	@ 0x24
@@ -827,9 +829,9 @@ int Shell::tokenize(const char* ptr, int size){
     int x = 0;
  8000784:	2300      	movs	r3, #0
  8000786:	623b      	str	r3, [r7, #32]
-    // Needs to deduct 1 from length in order to make sure we can terminate string
+    // Must subtract 1 from length to ensure string can be terminated
     while(true){
-        // Abort if no proper syntax has been found to the end of the string
+        // Abort if no correct syntax was found in the string
         if(current >= size) return -1;
  8000788:	6a7a      	ldr	r2, [r7, #36]	@ 0x24
  800078a:	687b      	ldr	r3, [r7, #4]
@@ -849,7 +851,8 @@ int Shell::tokenize(const char* ptr, int size){
  80007a6:	4413      	add	r3, r2
  80007a8:	781b      	ldrb	r3, [r3, #0]
  80007aa:	75fb      	strb	r3, [r7, #23]
-        // Attempt to clear input from artifacts if any has been added
+        // Attempt to remove artefacts from the input if any have been added. 
+        // Assuming clean input might be better, forcing the end user to think about what they are doing.
         if((c >= 127) || (c<=31)) {current++;continue;}
  80007ac:	7dfb      	ldrb	r3, [r7, #23]
  80007ae:	2b7e      	cmp	r3, #126	@ 0x7e
@@ -861,7 +864,9 @@ int Shell::tokenize(const char* ptr, int size){
  80007ba:	3301      	adds	r3, #1
  80007bc:	627b      	str	r3, [r7, #36]	@ 0x24
  80007be:	e01b      	b.n	80007f8 <_ZN5Shell8tokenizeEPKci+0x90>
-        // Command name ends with "[=" characters so we jump ahead 2 index to the start of args
+        // Command name ends with "[=" characters, so we jump 2 index to the beginning of the arguments.
+        // Can lead to undefined behaviour if the syntax is incorrect, critical part, must be fixed.
+        #warning unfixed possible source of error.
         if(c == '[') {
  80007c0:	7dfb      	ldrb	r3, [r7, #23]
  80007c2:	2b5b      	cmp	r3, #91	@ 0x5b
@@ -870,7 +875,7 @@ int Shell::tokenize(const char* ptr, int size){
  80007c6:	6a7b      	ldr	r3, [r7, #36]	@ 0x24
  80007c8:	3302      	adds	r3, #2
  80007ca:	627b      	str	r3, [r7, #36]	@ 0x24
-            _tokens[0][x] = '\0'; // Indicate end of the string
+            _tokens[0][x] = '\0'; // Terminate string
  80007cc:	68fa      	ldr	r2, [r7, #12]
  80007ce:	6a3b      	ldr	r3, [r7, #32]
  80007d0:	4413      	add	r3, r2
@@ -883,7 +888,7 @@ int Shell::tokenize(const char* ptr, int size){
         }
     }
     
-    // Tokenizing arguments
+    // Tokenising arguments
     for(int i = 1; i<SHELL_MAX_ARGS; i++){
  80007da:	2301      	movs	r3, #1
  80007dc:	61fb      	str	r3, [r7, #28]
@@ -909,9 +914,8 @@ int Shell::tokenize(const char* ptr, int size){
         int x = 0;
  80007fa:	2300      	movs	r3, #0
  80007fc:	61bb      	str	r3, [r7, #24]
-        // Needs to deduct 1 from length in order to make sure we can terminate string
         while(true){
-            // Abort if no proper syntax has been found to the end of the string
+            // Abort if no correct syntax was found in the string
             if(current >= size) return -1;
  80007fe:	6a7a      	ldr	r2, [r7, #36]	@ 0x24
  8000800:	687b      	ldr	r3, [r7, #4]
@@ -941,7 +945,7 @@ int Shell::tokenize(const char* ptr, int size){
  8000828:	6a7b      	ldr	r3, [r7, #36]	@ 0x24
  800082a:	3301      	adds	r3, #1
  800082c:	627b      	str	r3, [r7, #36]	@ 0x24
-                _tokens[i][x] = '\0'; // Indicate end of the string
+                _tokens[i][x] = '\0'; // Terminate string
  800082e:	68fa      	ldr	r2, [r7, #12]
  8000830:	69fb      	ldr	r3, [r7, #28]
  8000832:	2164      	movs	r1, #100	@ 0x64
@@ -957,7 +961,8 @@ int Shell::tokenize(const char* ptr, int size){
  8000846:	3301      	adds	r3, #1
  8000848:	e034      	b.n	80008b4 <_ZN5Shell8tokenizeEPKci+0x14c>
             }
-            // Attempt to clear input from artifacts if any has been added
+            // Attempt to remove artefacts from the input if any have been added. 
+            // Assuming clean input might be better, forcing the end user to think about what they are doing.
             if((c >= 127) || (c<=31)) {current++;continue;}
  800084a:	7dbb      	ldrb	r3, [r7, #22]
  800084c:	2b7e      	cmp	r3, #126	@ 0x7e
@@ -969,7 +974,7 @@ int Shell::tokenize(const char* ptr, int size){
  8000858:	3301      	adds	r3, #1
  800085a:	627b      	str	r3, [r7, #36]	@ 0x24
  800085c:	e022      	b.n	80008a4 <_ZN5Shell8tokenizeEPKci+0x13c>
-            // Command arg ends with ';' character
+            // Command arguments end with ';' character
             if(c == ';') {
  800085e:	7dbb      	ldrb	r3, [r7, #22]
  8000860:	2b3b      	cmp	r3, #59	@ 0x3b
@@ -978,7 +983,7 @@ int Shell::tokenize(const char* ptr, int size){
  8000864:	6a7b      	ldr	r3, [r7, #36]	@ 0x24
  8000866:	3301      	adds	r3, #1
  8000868:	627b      	str	r3, [r7, #36]	@ 0x24
-                _tokens[i][x] = '\0'; // Indicate end of the string
+                _tokens[i][x] = '\0'; // Terminate string
  800086a:	68fa      	ldr	r2, [r7, #12]
  800086c:	69fb      	ldr	r3, [r7, #28]
  800086e:	2164      	movs	r1, #100	@ 0x64
@@ -1034,11 +1039,11 @@ int Shell::tokenize(const char* ptr, int size){
  80008be:	4770      	bx	lr
 
 080008c0 <_ZN5Shell16setStringCompareEPFiPKcS1_E>:
- * Comparator should return 0 if strings are equal, all others outputs will be treated as failure.
- * It must be set explicit before executing Shell::execute to prevent undefined behaviour.
- *
- * @param ff Pointer to comparator function.
- */
+* The comparator should return 0 if the strings are equal, all other outputs are treated as not equal. 
+* It must be set explicitly before calling Shell::execute to avoid undefined behaviour.
+*
+* @param ff Pointer to the comparator function.
+*/
 void Shell::setStringCompare(int (*ff)(const char *, const char *)){
  80008c0:	b480      	push	{r7}
  80008c2:	b083      	sub	sp, #12
@@ -1057,11 +1062,11 @@ void Shell::setStringCompare(int (*ff)(const char *, const char *)){
  80008da:	4770      	bx	lr
 
 080008dc <_ZN5Shell7executeEPKci>:
- *
- * @param ptr Pointer to string that must be parsed, can be any input ex. string from UART buffer.
- * @param size Size of the ptr, prevents out of bounds errors.
- * @return -1 if there wasn't any token inside ptr, 0 if no command has been executed, 1 if some command has been executed.
- */
+*
+* @param ptr Pointer to string to parse, can be any input e.g. string from UART buffer.
+* @param size Size of the ptr, prevents out of bounds errors.
+* @return -1 if there's no token in ptr, 0 if no command was executed, 1 if any command was executed.
+*/
 int Shell::execute(const char *ptr, int size){
  80008dc:	b580      	push	{r7, lr}
  80008de:	b086      	sub	sp, #24
@@ -1596,10 +1601,10 @@ void SystemInit(void)
  8000b88:	e000ed00 	.word	0xe000ed00
 
 08000b8c <_Z19UART_UNIVERSAL_READP20__UART_HandleTypeDefPci>:
-* @param buffer_size Max size of read message.
+* @param buffer_size Maximum size of read message that can be read.
 * @param huart UART handler to be used.
-* @param buffer Buffer to store read message.
-* @return Size of the read message.
+* @param buffer Buffer for storing the read message.
+* @return Size of the message that was read.
 */
 int UART_UNIVERSAL_READ(UART_HandleTypeDef *huart, char* buffer, int buffer_size){
  8000b8c:	b580      	push	{r7, lr}
@@ -1626,7 +1631,7 @@ int UART_UNIVERSAL_READ(UART_HandleTypeDef *huart, char* buffer, int buffer_size
  8000ba8:	2200      	movs	r2, #0
  8000baa:	701a      	strb	r2, [r3, #0]
 		}
-		// Prevent overflowing of buffer limits
+		// Prevents buffer limits from being exceeded
 		if(current >buffer_size-1) return current;
  8000bac:	4b1e      	ldr	r3, [pc, #120]	@ (8000c28 <_Z19UART_UNIVERSAL_READP20__UART_HandleTypeDefPci+0x9c>)
  8000bae:	781b      	ldrb	r3, [r3, #0]
@@ -1637,7 +1642,7 @@ int UART_UNIVERSAL_READ(UART_HandleTypeDef *huart, char* buffer, int buffer_size
  8000bb8:	4b1b      	ldr	r3, [pc, #108]	@ (8000c28 <_Z19UART_UNIVERSAL_READP20__UART_HandleTypeDefPci+0x9c>)
  8000bba:	781b      	ldrb	r3, [r3, #0]
  8000bbc:	e02e      	b.n	8000c1c <_Z19UART_UNIVERSAL_READP20__UART_HandleTypeDefPci+0x90>
-		// Read one byte at the time.
+		// Reads one byte at a time.
 		if(HAL_UART_Receive(huart, &sample, 1, 2000) != HAL_OK) return 0;
  8000bbe:	f107 0117 	add.w	r1, r7, #23
  8000bc2:	f44f 63fa 	mov.w	r3, #2000	@ 0x7d0
@@ -1654,7 +1659,7 @@ int UART_UNIVERSAL_READ(UART_HandleTypeDef *huart, char* buffer, int buffer_size
  8000bdc:	d001      	beq.n	8000be2 <_Z19UART_UNIVERSAL_READP20__UART_HandleTypeDefPci+0x56>
  8000bde:	2300      	movs	r3, #0
  8000be0:	e01c      	b.n	8000c1c <_Z19UART_UNIVERSAL_READP20__UART_HandleTypeDefPci+0x90>
-		// Check for special characters and increment current
+		// Checks for special characters and increases current
 		if((sample>31) && (sample<127)) {buffer[current] = (char)sample; current++;}
  8000be2:	7dfb      	ldrb	r3, [r7, #23]
  8000be4:	2b1f      	cmp	r3, #31
@@ -1692,7 +1697,7 @@ int UART_UNIVERSAL_READ(UART_HandleTypeDef *huart, char* buffer, int buffer_size
 		return 0;
  8000c1a:	2300      	movs	r3, #0
 	}
-	// Should be here, something went wrong
+	// Something went wrong, shouldn't be here
 	return 0;
 }
  8000c1c:	4618      	mov	r0, r3

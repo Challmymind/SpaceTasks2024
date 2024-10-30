@@ -4,34 +4,37 @@
 const char* HELP_OUTPUT = "{HELP_OUTPUT}";
 
 /**
- * Tokenize input.
- *
- * Input as one long string with white spaces isn't that helpful.
- * This funtions splits input into smaller _tokens. Max _tokens count is defined by SHELL_MAX_ARGS
- * Max token size is defined by SHELL_MAX_TOKEN_LEN
- *
- * @param ptr Pointer to string to be tokenized, can be any input ex. string from UART buffer.
- * @param size Size of the ptr, prevents out of bounds errors.
- * @return number of read _tokens, -1 if some error occured (like invalid syntax)
- */
+* Tokenise input.
+*
+* This function splits the input string into smaller tokens. 
+* The maximum number of tokens is defined by SHELL_MAX_ARGS. 
+* The maximum size of the token is defined by SHELL_MAX_TOKEN_LEN.
+*
+* @param ptr Pointer to string to tokenise, can be any input e.g. string from UART buffer.
+* @param size Size of the ptr, prevents out of bounds errors.
+* @return The number of tokens that were read.
+*/
 int Shell::tokenize(const char* ptr, int size){{
     if(size == 0) return -1;
-    // Tracks last accessed index
+    // Last access track index
     int current = 0;
     // Search for command name
     int x = 0;
-    // Needs to deduct 1 from length in order to make sure we can terminate string
+    // Must subtract 1 from length to ensure string can be terminated
     while(true){{
-        // Abort if no proper syntax has been found to the end of the string
+        // Abort if no correct syntax was found in the string
         if(current >= size) return -1;
         if(x >= SHELL_MAX_TOKEN_LEN-1) return -1;
         char c = ptr[current];
-        // Attempt to clear input from artifacts if any has been added
+        // Attempt to remove artefacts from the input if any have been added. 
+        // Assuming clean input might be better, forcing the end user to think about what they are doing.
         if((c >= 127) || (c<=31)) {{current++;continue;}}
-        // Command name ends with "[=" characters so we jump ahead 2 index to the start of args
+        // Command name ends with "[=" characters, so we jump 2 index to the beginning of the arguments.
+        // Can lead to undefined behaviour if the syntax is incorrect, critical part, must be fixed.
+        #warning unfixed possible source of error.
         if(c == '[') {{
             current += 2;
-            _tokens[0][x] = '\0'; // Indicate end of the string
+            _tokens[0][x] = '\0'; // Terminate string
             break;
         }}
         else {{
@@ -41,13 +44,12 @@ int Shell::tokenize(const char* ptr, int size){{
         }}
     }}
     
-    // Tokenizing arguments
+    // Tokenising arguments
     for(int i = 1; i<SHELL_MAX_ARGS; i++){{
         // Overshadowing last x variable
         int x = 0;
-        // Needs to deduct 1 from length in order to make sure we can terminate string
         while(true){{
-            // Abort if no proper syntax has been found to the end of the string
+            // Abort if no correct syntax was found in the string
             if(current >= size) return -1;
             if(x >= SHELL_MAX_TOKEN_LEN-1) return -1;
 
@@ -55,15 +57,16 @@ int Shell::tokenize(const char* ptr, int size){{
             // Special case
             if(c == ']'){{
                 current++;
-                _tokens[i][x] = '\0'; // Indicate end of the string
+                _tokens[i][x] = '\0'; // Terminate string
                 return (i+1);
             }}
-            // Attempt to clear input from artifacts if any has been added
+            // Attempt to remove artefacts from the input if any have been added. 
+            // Assuming clean input might be better, forcing the end user to think about what they are doing.
             if((c >= 127) || (c<=31)) {{current++;continue;}}
-            // Command arg ends with ';' character
+            // Command arguments end with ';' character
             if(c == ';') {{
                 current++;
-                _tokens[i][x] = '\0'; // Indicate end of the string
+                _tokens[i][x] = '\0'; // Terminate string
                 break;
             }}
             else {{
@@ -78,26 +81,26 @@ int Shell::tokenize(const char* ptr, int size){{
 }}
 
 /**
- * Sets internal string comparator.
- *
- * Comparator should return 0 if strings are equal, all others outputs will be treated as failure.
- * It must be set explicit before executing Shell::execute to prevent undefined behaviour.
- *
- * @param ff Pointer to comparator function.
- */
+* Sets the internal string comparator.
+*
+* The comparator should return 0 if the strings are equal, all other outputs are treated as not equal. 
+* It must be set explicitly before calling Shell::execute to avoid undefined behaviour.
+*
+* @param ff Pointer to the comparator function.
+*/
 void Shell::setStringCompare(int (*ff)(const char *, const char *)){{
     __string_compare = ff;
 }}
 
 /**
- * Execute shell's main logic.
- *
- * Checks for commands and executes callback if any has been found.
- *
- * @param ptr Pointer to string that must be parsed, can be any input ex. string from UART buffer.
- * @param size Size of the ptr, prevents out of bounds errors.
- * @return -1 if there wasn't any token inside ptr, 0 if no command has been executed, 1 if some command has been executed.
- */
+* Execute the main logic of the shell.
+*
+* Checks for commands and performs a callback if one is found.
+*
+* @param ptr Pointer to string to parse, can be any input e.g. string from UART buffer.
+* @param size Size of the ptr, prevents out of bounds errors.
+* @return -1 if there's no token in ptr, 0 if no command was executed, 1 if any command was executed.
+*/
 int Shell::execute(const char *ptr, int size){{
     int nargs = tokenize(ptr, size);
     if(nargs == 0) return -1;
