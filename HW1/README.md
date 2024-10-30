@@ -21,7 +21,7 @@ I have made some more or less reasonable assumptions:
 ## HED
 Why HED? This is because traditional sensing with a sense resistor would waste a lot of power. I could also use transformers, which require no external power supply, unlike the Hall effect sensor, but then the measured line must be AC.
 The Hall effect solution also has another major advantage in compare to sense resistor: Galvanised insulation so no loading effect of any kind and improved safety. I have selected a unidirectional Hal sensor. For a while I thought
-I could get away without a differential amplifier, but even with this design I needed it as a substractor (with the resistor I still wanted to do high-side sensing, which is why I needed it anyway). My chosen HED outputs voltage in the range <0V5,3V5> for
+I could get away without a differential amplifier, but even with this design I needed it as a substractor (with the resistor I still wanted to do high-side sensing, which is why I needed it anyway). My chosen HED outputs voltage in the range <0V5,3V5>
 for <0A,50A>, so I had to scale the signal a bit. [Here is a link to what I used](https://octopart.com/datasheet/acs780llrtr-050u-t-allegro+microsystems-75430442)
 
 ## Substractor and divider
