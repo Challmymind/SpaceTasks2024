@@ -17,11 +17,21 @@
  * (8+13-1)=20. Now 13 ticks is 812ns and 8 ticks is 500n which is close enough.
  *
  */
+#ifndef HIGH_PWM_DUTY
 #define HIGH_PWM_DUTY 	13
-#define LOW_PWM_DUTY 	7
-#define RES_PWM_DUTY	0 	// Sends reset, informing LEDs that a new cycle is starting
-#define PWM_DUTY_SIZE 	8 	// In the DMA settings, the size of the data is set to one byte, so that after each byte sent, the PWM updates it's duty.
+#endif
 
+#ifndef LOW_PWM_DUTY
+#define LOW_PWM_DUTY 	7
+#endif
+
+#ifndef RES_PWM_DUTY
+#define RES_PWM_DUTY	0 	// Sends reset, informing LEDs that a new cycle is starting
+#endif
+
+#ifndef PWM_DUTY_SIZE
+#define PWM_DUTY_SIZE 	8 	// In the DMA settings, the size of the data is set to one byte, so that after each byte sent, the PWM updates it's duty.
+#endif
 
 /**
  * LED structure,
