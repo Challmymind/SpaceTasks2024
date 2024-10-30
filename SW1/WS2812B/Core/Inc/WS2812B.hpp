@@ -29,9 +29,9 @@
 #define RES_PWM_DUTY	0 	// Sends reset, informing LEDs that a new cycle is starting
 #endif
 
-#ifndef PWM_DUTY_SIZE
-#define PWM_DUTY_SIZE 	8 	// In the DMA settings, the size of the data is set to one byte, so that after each byte sent, the PWM updates it's duty.
-#endif
+
+#define BITS_IN_COLOR 	8
+
 
 /**
  * LED structure,
@@ -119,7 +119,7 @@ private:
 
 		for(uint8_t x=0; x<3;x++){
 
-			for(uint8_t y=0; y<PWM_DUTY_SIZE; y++)
+			for(uint8_t y=0; y<BITS_IN_COLOR; y++)
 			{
 				if(( ( ( (uint8_t*)(&led) )[x] >> y) & 0x01) == 1)
 				{
