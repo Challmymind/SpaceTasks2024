@@ -60,15 +60,33 @@ static void MX_TIM4_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 #define PERIOD_MS 3000
+// Percentage of current period. 0% - 0, 100% - 255
 uint8_t area = 0;
+// Stores time to calculate percentage.
 uint32_t last_time;
+// 1 if button has been pressed and hasn't been cleared yet.
 uint8_t clicked = 0;
 
-void update_click(){
-	if(HAL_GPIO_ReadPin(CLICKY_BUTTON_GPIO_Port, CLICKY_BUTTON_Pin)) clicked = 1;
+/**
+ * Checks if GPIO has been shorted.
+ *
+ * 255 is end of the period.
+ * 0 is start of the period.
+ * May miss timings when GPIO is pressed if full execution of main loop takes too long.
+ * A better solution would be to use interrupts, but this simple example will do.
+ */
+#warning "Use interrupts instead if main loop runs too long to catch all presses"
+void update_click(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin){
+	if(HAL_GPIO_ReadPin(GPIOx, GPIO_Pin)) clicked = 1;
 	else clicked = 0;
 }
 
+/**
+ * Updates the percentage of the current period.
+ *
+ * 255 is end of the period.
+ * 0 is start of the period.
+ */
 void update_area(){
 	uint32_t current_time = HAL_GetTick();
 	if(current_time - last_time >= PERIOD_MS){
@@ -79,25 +97,45 @@ void update_area(){
 	area = ((current_time-last_time)*255)/PERIOD_MS;
 }
 
+/**
+ * Modulation of the green part of the LED.
+ *
+ * Generates a pulse with a sawtooth signal.
+ */
 uint8_t greenStep(uint8_t area){
 	return area;
 }
 
+/**
+ * Modulation of the red part of the LED.
+ *
+ * Generates a pulse with a width of 1/2 the period.
+ */
 uint8_t redStep(uint8_t area){
 	if(area < 128) return 255;
 	return 0;
 }
 
+/**
+ * Modulation of the blue part of the LED.
+ *
+ * Blinks 3 in the period after registering clicked GPIO.
+ */
 uint8_t blueStep(uint8_t area, uint8_t clicked){
 	if(!clicked) return 0;
 
-	// some approximation because it doesn't need to be that precise
+	// some approximation, because it doesn't have to be that precise
 	else{
 		if(((area - (area % 42))/43) & 1) return 255;
 	}
 	return 0;
 }
 
+/**
+ * LED modulation function.
+ *
+ * Modulates LEDs in the strip to output the correct signals.
+ */
 int modulation(LED* led, const int i, const int feedback){
 	led->blue = blueStep(area, clicked);
 	led->red = redStep(area);
@@ -105,6 +143,11 @@ int modulation(LED* led, const int i, const int feedback){
 	return 0;
 }
 
+/**
+ * PWM completion callback.
+ *
+ * Called after the PWM function has been executed, tells PWM to stop before the next batch of data.
+ */
 void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
 {
 	if(TIM4 == htim->Instance)
@@ -147,9 +190,13 @@ int main(void)
   MX_DMA_Init();
   MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
+  // Set start time to ensure there is no garbage in the variable.
   last_time = HAL_GetTick();
+  // Set starting percentage to 0
   area = 0;
+  // Initialise the strip with the length of the 10 (10 LEDs).
   Strip<10>	strip(&htim4, TIM_CHANNEL_1);
+  // Set callback for LED.
   strip.setLedCallback(modulation);
   /* USER CODE END 2 */
 
@@ -157,8 +204,11 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	update_click();
+	// Check for presses.
+	update_click(CLICKY_BUTTON_GPIO_Port, CLICKY_BUTTON_Pin);
+	// Update period.
 	update_area();
+	// Run strip
     strip.run();
     /* USER CODE END WHILE */
 
