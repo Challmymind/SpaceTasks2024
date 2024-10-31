@@ -1,0 +1,7 @@
+../Core/Src/main.cpp:77:6:void HAL_GPIO_EXTI_Callback(uint16_t)	16	static,ignoring_inline_asm
+../Core/Src/main.cpp:95:6:void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef*)	40	static
+../Core/Src/main.cpp:123:5:int main()	24	static
+../Core/Src/main.cpp:170:6:void SystemClock_Config()	88	static
+../Core/Src/main.cpp:211:13:void MX_ADC1_Init()	56	static
+../Core/Src/main.cpp:279:13:void MX_GPIO_Init()	40	static
+../Core/Src/main.cpp:321:6:void Error_Handler()	4	static,ignoring_inline_asm
