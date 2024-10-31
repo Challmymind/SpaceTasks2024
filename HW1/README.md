@@ -1,5 +1,7 @@
 # Overview
-Current sensing circuit to operate on a 24V line with a maximum of 50A. Based on HED. PS. I'm using HED as hall effect device.
+Current sensing circuit to operate on a 24V line with a maximum of 50A. Based on HED. PS. I'm using HED as hall effect device. <br>
+
+PS. This should be placed on the high side of the load. With a resistance sense approach it would be more difficult because of the high CM, but hall effect devices don't have this problem (I mean, they have, it's just not related to the measured voltage of the line). Why high side? Because being able to detect a short circuit, I assume, is critical in the line that can output 50A.
 
 ## Table of contents
 * [Overview](#overview)
