@@ -61,4 +61,4 @@ void update_click(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin){
 ```
 
 # Possible improvements
-If it were to become a real library, a real application, it should at least implement things like brightness adjustment independent of modulation. GPIO reads should also be swapped to interrupts to ensure that nothing is missed.
+If it were to become a real library, a real application, it should at least implement things like brightness adjustment independent of modulation. GPIO reads should also be swapped to interrupts to ensure that nothing is missed ([like here](https://github.com/Challmymind/SpaceTasks2024/tree/main/SW3)).
