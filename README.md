@@ -9,7 +9,7 @@ Entry tasks Space System 2024. This is a repository of all the tasks I have done
 * [Possible improvements](#possible-improvements)
 
 # Structure
-All sub-directories contain readme files designed for specific tasks, hardwares' being more of a rationales and softwares' more of an instructions. The most detailed readme I create is for [SW2](https://github.com/Challmymind/SpaceTasks2024/tree/main/SW2).
+All sub-directories contain readme files designed for specific tasks, hardwares' being more of a rationales and softwares' more of an instructions. The most detailed readme I created is for [SW2](https://github.com/Challmymind/SpaceTasks2024/tree/main/SW2).
 
 # Altium
 I've never used Altium before, so I wasn't sure which files to export, so I exported everything. The history could probably be deleted, but I wanted to avoid confusion so I just kept it.
